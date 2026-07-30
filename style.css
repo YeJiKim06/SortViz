@@ -177,3 +177,20 @@ button:disabled {
         height: 250px;
     }
 }
+
+/* 사용자 입력창 전용 스타일 추가 */
+.custom-input-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.custom-input-group input[type="text"] {
+    flex: 1;
+    min-width: 120px;
+}
+
+@media (max-width: 600px) {
+    .custom-input-group {
+        width: 100%;
+    }
+}
