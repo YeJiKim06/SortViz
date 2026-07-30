@@ -169,12 +169,56 @@ function setControlsDisabled(disabled) {
     clearTableBtn.disabled = disabled;
 }
 
-/* ==================== 정렬 알고리즘 ==================== */
+// 기존 변수 및 DOM 참조는 유지...
 
-// 1. 버블 정렬
+// 막대 생성/업데이트 시 숫자 레이블을 함께 다루는 공통 함수
+function createBarElement(value, maxVal) {
+    const bar = document.createElement('div');
+    bar.classList.add('bar');
+    
+    const heightPercent = (value / maxVal) * 100;
+    bar.style.height = `${Math.max(heightPercent, 8)}%`; // 글자 표시를 위해 최소 높이 8%로 상향
+
+    const valueSpan = document.createElement('span');
+    valueSpan.classList.add('bar-value');
+    valueSpan.textContent = value;
+    bar.appendChild(valueSpan);
+
+    return bar;
+}
+
+// 특정 막대의 높이와 내부 숫자를 변경하는 헬퍼 함수
+function updateBarHeight(bar, value, maxVal) {
+    const heightPercent = (value / maxVal) * 100;
+    bar.style.height = `${Math.max(heightPercent, 8)}%`;
+    
+    let valueSpan = bar.querySelector('.bar-value');
+    if (!valueSpan) {
+        valueSpan = document.createElement('span');
+        valueSpan.classList.add('bar-value');
+        bar.appendChild(valueSpan);
+    }
+    valueSpan.textContent = value;
+}
+
+// 막대 그래프 렌더링
+function renderBars(targetArray) {
+    barContainer.innerHTML = '';
+    const maxVal = Math.max(...targetArray, 100);
+
+    targetArray.forEach(value => {
+        const bar = createBarElement(value, maxVal);
+        barContainer.appendChild(bar);
+    });
+}
+
+/* ==================== 정렬 알고리즘 내 업데이트 방식 ==================== */
+
+// 1. 버블 정렬 중 Swap 부분 예시
 async function bubbleSort() {
     const bars = document.getElementsByClassName('bar');
     const n = array.length;
+    const maxVal = Math.max(...array, 100);
 
     for (let i = 0; i < n - 1; i++) {
         for (let j = 0; j < n - i - 1; j++) {
@@ -184,8 +228,10 @@ async function bubbleSort() {
 
             if (array[j] > array[j + 1]) {
                 [array[j], array[j + 1]] = [array[j + 1], array[j]];
-                bars[j].style.height = `${(array[j] / Math.max(...array, 100)) * 100}%`;
-                bars[j + 1].style.height = `${(array[j + 1] / Math.max(...array, 100)) * 100}%`;
+                
+                // updateBarHeight 헬퍼 함수 사용
+                updateBarHeight(bars[j], array[j], maxVal);
+                updateBarHeight(bars[j + 1], array[j + 1], maxVal);
 
                 addStepToTable(`값 교환 (${array[j+1]} ↔ ${array[j]})`, 'swap');
             }
@@ -198,10 +244,11 @@ async function bubbleSort() {
     bars[0].classList.add('sorted');
 }
 
-// 2. 선택 정렬
+// 2. 선택 정렬 중 Swap 예시
 async function selectionSort() {
     const bars = document.getElementsByClassName('bar');
     const n = array.length;
+    const maxVal = Math.max(...array, 100);
 
     for (let i = 0; i < n; i++) {
         let minIdx = i;
@@ -222,8 +269,9 @@ async function selectionSort() {
 
         if (minIdx !== i) {
             [array[i], array[minIdx]] = [array[minIdx], array[i]];
-            bars[i].style.height = `${(array[i] / Math.max(...array, 100)) * 100}%`;
-            bars[minIdx].style.height = `${(array[minIdx] / Math.max(...array, 100)) * 100}%`;
+            
+            updateBarHeight(bars[i], array[i], maxVal);
+            updateBarHeight(bars[minIdx], array[minIdx], maxVal);
 
             addStepToTable(`최솟값 교환 (${array[i]} 위치 이동)`, 'swap');
         }
@@ -233,10 +281,11 @@ async function selectionSort() {
     }
 }
 
-// 3. 삽입 정렬
+// 3. 삽입 정렬 중 위치 변경 예시
 async function insertionSort() {
     const bars = document.getElementsByClassName('bar');
     const n = array.length;
+    const maxVal = Math.max(...array, 100);
     bars[0].classList.add('sorted');
 
     for (let i = 1; i < n; i++) {
@@ -249,14 +298,16 @@ async function insertionSort() {
         while (j >= 0 && array[j] > key) {
             bars[j].classList.add('comparing');
             array[j + 1] = array[j];
-            bars[j + 1].style.height = `${(array[j] / Math.max(...array, 100)) * 100}%`;
+            
+            updateBarHeight(bars[j + 1], array[j], maxVal);
             await delay();
+            
             bars[j].classList.remove('comparing');
             j--;
         }
 
         array[j + 1] = key;
-        bars[j + 1].style.height = `${(key / Math.max(...array, 100)) * 100}%`;
+        updateBarHeight(bars[j + 1], key, maxVal);
         bars[i].classList.remove('selected');
 
         addStepToTable(`원소 삽입 (${key})`, 'insert');
@@ -265,9 +316,10 @@ async function insertionSort() {
     }
 }
 
-// 4. 병합 정렬
+// 4. 병합 정렬 중 갱신 예시
 async function merge(start, mid, end) {
     const bars = document.getElementsByClassName('bar');
+    const maxVal = Math.max(...array, 100);
     const temp = [];
     let i = start, j = mid + 1;
 
@@ -285,7 +337,7 @@ async function merge(start, mid, end) {
 
     for (let k = start; k <= end; k++) {
         array[k] = temp[k - start];
-        bars[k].style.height = `${(array[k] / Math.max(...array, 100)) * 100}%`;
+        updateBarHeight(bars[k], array[k], maxVal);
         bars[k].classList.remove('comparing');
         bars[k].classList.add('sorted');
     }
@@ -293,21 +345,10 @@ async function merge(start, mid, end) {
     addStepToTable(`부분 병합 완료 (${start}~${end} 구간)`, 'compare');
 }
 
-async function mergeSortHelper(start, end) {
-    if (start >= end) return;
-    const mid = Math.floor((start + end) / 2);
-    await mergeSortHelper(start, mid);
-    await mergeSortHelper(mid + 1, end);
-    await merge(start, mid, end);
-}
-
-async function mergeSort() {
-    await mergeSortHelper(0, array.length - 1);
-}
-
-// 5. 퀵 정렬
+// 5. 퀵 정렬 중 Swap 예시
 async function partition(low, high) {
     const bars = document.getElementsByClassName('bar');
+    const maxVal = Math.max(...array, 100);
     const pivot = array[high];
     bars[high].classList.add('selected');
 
@@ -320,15 +361,16 @@ async function partition(low, high) {
         if (array[j] < pivot) {
             i++;
             [array[i], array[j]] = [array[j], array[i]];
-            bars[i].style.height = `${(array[i] / Math.max(...array, 100)) * 100}%`;
-            bars[j].style.height = `${(array[j] / Math.max(...array, 100)) * 100}%`;
+            updateBarHeight(bars[i], array[i], maxVal);
+            updateBarHeight(bars[j], array[j], maxVal);
         }
         bars[j].classList.remove('comparing');
     }
 
     [array[i + 1], array[high]] = [array[high], array[i + 1]];
-    bars[i + 1].style.height = `${(array[i + 1] / Math.max(...array, 100)) * 100}%`;
-    bars[high].style.height = `${(array[high] / Math.max(...array, 100)) * 100}%`;
+    updateBarHeight(bars[i + 1], array[i + 1], maxVal);
+    updateBarHeight(bars[high], array[high], maxVal);
+    
     bars[high].classList.remove('selected');
     bars[i + 1].classList.add('sorted');
 
