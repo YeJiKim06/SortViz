@@ -1,0 +1,179 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+}
+
+body {
+    background-color: #f4f6f8;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+header h1 {
+    text-align: center;
+    font-size: 1.8rem;
+    color: #1e293b;
+}
+
+/* 컨트롤 영역 */
+.controls {
+    background-color: #ffffff;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+select, button, input[type="range"] {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 0.95rem;
+}
+
+.button-group {
+    display: flex;
+    gap: 8px;
+}
+
+button {
+    cursor: pointer;
+    background-color: #e2e8f0;
+    border: none;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #cbd5e1;
+}
+
+button.primary-btn {
+    background-color: #2563eb;
+    color: white;
+}
+
+button.primary-btn:hover {
+    background-color: #1d4ed8;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 시각화 그래프 영역 */
+.visualization-container {
+    background-color: #ffffff;
+    height: 320px;
+    padding: 20px 10px 10px 10px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: flex-end;
+}
+
+#bar-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+}
+
+.bar {
+    flex: 1;
+    background-color: #94a3b8;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    transition: height 0.1s ease, background-color 0.1s ease;
+}
+
+/* 막대 상태 색상 */
+.bar.comparing {
+    background-color: #ef4444; /* 비교 중: 빨간색 */
+}
+
+.bar.selected {
+    background-color: #f59e0b; /* 선택/기준점: 주황색 */
+}
+
+.bar.sorted {
+    background-color: #10b981; /* 정렬 완료: 초록색 */
+}
+
+/* 설명 영역 */
+.description-card {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.description-card h2 {
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+    color: #0f172a;
+}
+
+.description-card p {
+    line-height: 1.6;
+    color: #475569;
+    margin-bottom: 12px;
+}
+
+.complexity-info {
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+/* 모바일 대응 반응형 스타일 */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .control-group {
+        justify-content: space-between;
+    }
+
+    .button-group {
+        width: 100%;
+    }
+
+    .button-group button {
+        flex: 1;
+    }
+
+    .visualization-container {
+        height: 250px;
+    }
+}

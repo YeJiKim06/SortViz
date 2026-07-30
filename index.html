@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정렬 알고리즘 시각화</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>정렬 알고리즘 시각화</h1>
+        </header>
+
+        <!-- 상단 컨트롤 영역 -->
+        <section class="controls">
+            <div class="control-group">
+                <label for="algorithm-select">알고리즘 선택:</label>
+                <select id="algorithm-select">
+                    <option value="bubble">버블 정렬 (Bubble Sort)</option>
+                    <option value="selection">선택 정렬 (Selection Sort)</option>
+                    <option value="insertion">삽입 정렬 (Insertion Sort)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="speed-range">속도:</label>
+                <input type="range" id="speed-range" min="10" max="500" value="100">
+            </div>
+
+            <div class="button-group">
+                <button id="generate-btn">새 배열 생성</button>
+                <button id="start-btn" class="primary-btn">정렬 시작</button>
+            </div>
+        </section>
+
+        <!-- 시각화 막대 그래프 영역 -->
+        <section class="visualization-container">
+            <div id="bar-container"></div>
+        </section>
+
+        <!-- 알고리즘 설명 영역 -->
+        <section class="description-card">
+            <h2 id="desc-title">알고리즘 설명</h2>
+            <p id="desc-content">알고리즘을 선택하고 정렬 시작 버튼을 누르세요.</p>
+            <div class="complexity-info">
+                <span>시간 복잡도: <strong id="desc-complexity">-</strong></span>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
