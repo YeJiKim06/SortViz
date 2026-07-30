@@ -1,98 +1,201 @@
+:root {
+    --bg-main: #0f172a;          /* 메인 배경: 어두운 슬레이트 블루 */
+    --bg-card: #1e293b;          /* 카드 배경 */
+    --bg-input: #0f172a;         /* 입력 폼 배경 */
+    --border-color: #334155;     /* 경계선 색상 */
+    
+    --text-primary: #f8fafc;     /* 메인 텍스트 */
+    --text-secondary: #94a3b8;   /* 서브 텍스트 */
+    
+    /* 막대 그래프 상태별 그라데이션 색상 */
+    --bar-default: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+    --bar-comparing: linear-gradient(180deg, #f43f5e 0%, #e11d48 100%);
+    --bar-selected: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
+    --bar-sorted: linear-gradient(180deg, #34d399 0%, #059669 100%);
+    
+    --accent-glow: rgba(99, 102, 241, 0.35);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Pretendard", sans-serif;
 }
 
 body {
-    background-color: #f4f6f8;
-    color: #333;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    min-height: 100vh;
     display: flex;
     justify-content: center;
-    padding: 20px;
+    align-items: center;
+    padding: 24px 16px;
 }
 
 .container {
     width: 100%;
-    max-width: 900px;
+    max-width: 960px;
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-header h1 {
+header {
     text-align: center;
-    font-size: 1.8rem;
-    color: #1e293b;
+    margin-bottom: 8px;
 }
 
-/* 컨트롤 영역 */
+header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+}
+
+header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-top: 6px;
+}
+
+/* 컨트롤 패널 카드 */
 .controls {
-    background-color: #ffffff;
-    padding: 16px 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.control-row {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
 }
 
 .control-group {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 8px;
 }
 
-select, button, input[type="range"] {
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid #cbd5e1;
-    font-size: 0.95rem;
+.control-group.flex-1 {
+    flex: 1;
+    min-width: 220px;
 }
 
-.button-group {
+label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+select, input[type="text"] {
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+select:focus, input[type="text"]:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.input-with-btn {
     display: flex;
     gap: 8px;
+}
+
+.input-with-btn input {
+    flex: 1;
+}
+
+/* 슬라이더 스타일링 */
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #334155;
+    border-radius: 3px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #6366f1;
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--accent-glow);
+    transition: transform 0.1s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+/* 버튼 디자인 */
+.button-group {
+    display: flex;
+    gap: 10px;
 }
 
 button {
     cursor: pointer;
-    background-color: #e2e8f0;
+    background-color: #334155;
+    color: var(--text-primary);
     border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
     font-weight: 600;
-    transition: background-color 0.2s;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
 }
 
 button:hover {
-    background-color: #cbd5e1;
+    background-color: #475569;
 }
 
 button.primary-btn {
-    background-color: #2563eb;
-    color: white;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    box-shadow: 0 4px 14px var(--accent-glow);
 }
 
 button.primary-btn:hover {
-    background-color: #1d4ed8;
+    opacity: 0.9;
+    transform: translateY(-1px);
 }
 
 button:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
+    transform: none !important;
 }
 
 /* 시각화 그래프 영역 */
 .visualization-container {
-    background-color: #ffffff;
+    background-color: #0b1120;
+    border: 1px solid var(--border-color);
     height: 320px;
-    padding: 20px 10px 10px 10px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: flex-end;
+    padding: 24px 16px 12px 16px;
+    border-radius: 16px;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
 #bar-container {
@@ -101,96 +204,80 @@ button:disabled {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    gap: 4px;
+    gap: 6px;
 }
 
 .bar {
     flex: 1;
-    background-color: #94a3b8;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    transition: height 0.1s ease, background-color 0.1s ease;
+    background: var(--bar-default);
+    border-radius: 6px 6px 0 0;
+    transition: height 0.1s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* 막대 상태 색상 */
+/* 막대 네온 광원 효과 */
 .bar.comparing {
-    background-color: #ef4444; /* 비교 중: 빨간색 */
+    background: var(--bar-comparing);
+    box-shadow: 0 0 12px rgba(244, 63, 94, 0.8);
 }
 
 .bar.selected {
-    background-color: #f59e0b; /* 선택/기준점: 주황색 */
+    background: var(--bar-selected);
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.8);
 }
 
 .bar.sorted {
-    background-color: #10b981; /* 정렬 완료: 초록색 */
+    background: var(--bar-sorted);
 }
 
-/* 설명 영역 */
+/* 설명 카드리뉴얼 */
 .description-card {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 20px 24px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
 }
 
 .description-card h2 {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
+    color: #38bdf8;
     margin-bottom: 8px;
-    color: #0f172a;
 }
 
 .description-card p {
     line-height: 1.6;
-    color: #475569;
-    margin-bottom: 12px;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 14px;
 }
 
 .complexity-info {
-    font-size: 0.9rem;
-    color: #64748b;
+    display: inline-block;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
 }
 
-/* 모바일 대응 반응형 스타일 */
-@media (max-width: 600px) {
-    body {
-        padding: 10px;
-    }
-
-    .controls {
+/* 반응형 모바일 커스텀 */
+@media (max-width: 640px) {
+    .control-row {
         flex-direction: column;
         align-items: stretch;
     }
-
-    .control-group {
-        justify-content: space-between;
-    }
-
+    
     .button-group {
         width: 100%;
     }
-
+    
     .button-group button {
         flex: 1;
     }
 
     .visualization-container {
-        height: 250px;
-    }
-}
-
-/* 사용자 입력창 전용 스타일 추가 */
-.custom-input-group {
-    flex: 1;
-    min-width: 200px;
-}
-
-.custom-input-group input[type="text"] {
-    flex: 1;
-    min-width: 120px;
-}
-
-@media (max-width: 600px) {
-    .custom-input-group {
-        width: 100%;
+        height: 240px;
     }
 }
