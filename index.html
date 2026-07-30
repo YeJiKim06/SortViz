@@ -13,6 +13,7 @@
         </header>
 
         <!-- 상단 컨트롤 영역 -->
+        <!-- 기존 컨트롤 영역 내부 -->
         <section class="controls">
             <div class="control-group">
                 <label for="algorithm-select">알고리즘 선택:</label>
@@ -20,16 +21,25 @@
                     <option value="bubble">버블 정렬 (Bubble Sort)</option>
                     <option value="selection">선택 정렬 (Selection Sort)</option>
                     <option value="insertion">삽입 정렬 (Insertion Sort)</option>
+                    <option value="merge">병합 정렬 (Merge Sort)</option>
+                    <option value="quick">퀵 정렬 (Quick Sort)</option>
                 </select>
             </div>
-
+        
+            <!-- 추가된 직접 입력 필드 -->
+            <div class="control-group custom-input-group">
+                <label for="custom-array-input">배열 입력:</label>
+                <input type="text" id="custom-array-input" placeholder="예: 25, 80, 15, 40, 60">
+                <button id="apply-array-btn">적용</button>
+            </div>
+        
             <div class="control-group">
                 <label for="speed-range">속도:</label>
                 <input type="range" id="speed-range" min="10" max="500" value="100">
             </div>
-
+        
             <div class="button-group">
-                <button id="generate-btn">새 배열 생성</button>
+                <button id="generate-btn">랜덤 배열 생성</button>
                 <button id="start-btn" class="primary-btn">정렬 시작</button>
             </div>
         </section>
