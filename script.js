@@ -1,3 +1,26 @@
+// 기존 변수 및 DOM 선언부에 추가
+const themeToggleBtn = document.getElementById('theme-toggle-btn');
+const themeIcon = document.getElementById('theme-icon');
+const themeText = document.getElementById('theme-text');
+
+// 테마 상태 토글 처리
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    
+    if (currentTheme === 'light') {
+        document.documentElement.removeAttribute('data-theme');
+        themeIcon.textContent = '☀️';
+        themeText.textContent = '라이트 모드';
+    } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeIcon.textContent = '🌙';
+        themeText.textContent = '다크 모드';
+    }
+}
+
+// 이벤트 리스너 등록에 추가
+themeToggleBtn.addEventListener('click', toggleTheme);
+
 const barContainer = document.getElementById('bar-container');
 const algorithmSelect = document.getElementById('algorithm-select');
 const speedRange = document.getElementById('speed-range');
