@@ -1,8 +1,3 @@
-const ARRAY_SIZE = 30;
-let array = [];
-let isSorting = false;
-
-// DOM 요소 참조
 const barContainer = document.getElementById('bar-container');
 const algorithmSelect = document.getElementById('algorithm-select');
 const speedRange = document.getElementById('speed-range');
@@ -12,11 +7,21 @@ const descTitle = document.getElementById('desc-title');
 const descContent = document.getElementById('desc-content');
 const descComplexity = document.getElementById('desc-complexity');
 
-// 알고리즘별 설명 데이터 (병합, 퀵 정렬 추가)
+const customArrayInput = document.getElementById('custom-array-input');
+const applyArrayBtn = document.getElementById('apply-array-btn');
+
+// 표 관련 DOM 요소
+const stepTableBody = document.getElementById('step-table-body');
+const clearTableBtn = document.getElementById('clear-table-btn');
+
+let array = [];
+let isSorting = false;
+let stepCount = 0;
+
 const algorithmData = {
     bubble: {
         title: "버블 정렬 (Bubble Sort)",
-        description: "인접한 두 원소를 비교하여 크기가 순서대로 들어있지 않으면 서로 교환하는 방식입니다. 한 회전이 끝나면 가장 큰 원소가 마지막 위치로 이동합니다.",
+        description: "인접한 두 원소를 비교하여 크기가 순서대로 들어있지 않으면 서로 교환하는 방식입니다.",
         complexity: "O(n²)"
     },
     selection: {
@@ -26,45 +31,103 @@ const algorithmData = {
     },
     insertion: {
         title: "삽입 정렬 (Insertion Sort)",
-        description: "두 번째 원소부터 시작하여 차례대로 앞쪽의 이미 정렬된 부분과 비교하여 자신의 위치를 찾아 삽입하는 방식입니다.",
+        description: "두 번째 원소부터 시작하여 앞쪽의 정렬된 부분과 비교해 위치를 찾아 삽입하는 방식입니다.",
         complexity: "O(n²)"
     },
     merge: {
         title: "병합 정렬 (Merge Sort)",
-        description: "배열을 절반으로 나누어 각각 정렬한 후, 다시 병합하면서 전체를 정렬하는 분할 정복 알고리즘입니다.",
+        description: "배열을 절반으로 나누어 각각 정렬한 후 병합하는 분할 정복 알고리즘입니다.",
         complexity: "O(n log n)"
     },
     quick: {
         title: "퀵 정렬 (Quick Sort)",
-        description: "피벗(Pivot)을 선정하여 피벗보다 작은 값과 큰 값으로 분할하며 정렬을 수행하는 효율적인 분할 정복 알고리즘입니다.",
+        description: "피벗(Pivot)을 기준으로 작은 값과 큰 값을 분할하여 정렬하는 알고리즘입니다.",
         complexity: "O(n log n)"
     }
 };
 
-// 딜레이 함수
 const delay = () => {
     const speed = 510 - speedRange.value;
     return new Promise(resolve => setTimeout(resolve, speed));
 };
 
-// 랜덤 배열 생성 및 화면 렌더링
+// 표에 새로운 스텝 추가하는 함수
+function addStepToTable(actionText, badgeClass) {
+    if (stepCount === 0) {
+        stepTableBody.innerHTML = ''; // 안내 문구 삭제
+    }
+    stepCount++;
+
+    const row = document.createElement('tr');
+    row.classList.add('new-step');
+
+    const formattedArray = `[ ${array.join(', ')} ]`;
+
+    row.innerHTML = `
+        <td>#${stepCount}</td>
+        <td><span class="action-badge ${badgeClass}">${actionText}</span></td>
+        <td>${formattedArray}</td>
+    `;
+
+    stepTableBody.prepend(row); // 최근 스텝이 상단에 올라오도록 추가
+}
+
+// 표 초기화
+function clearStepTable() {
+    if (isSorting) return;
+    stepCount = 0;
+    stepTableBody.innerHTML = `
+        <tr>
+            <td colspan="3" class="empty-msg">정렬이 시작되면 이 곳에 단계별 기록이 표시됩니다.</td>
+        </tr>
+    `;
+}
+
+// 막대 그래프 렌더링
+function renderBars(targetArray) {
+    barContainer.innerHTML = '';
+    const maxVal = Math.max(...targetArray, 100);
+
+    targetArray.forEach(value => {
+        const bar = document.createElement('div');
+        bar.classList.add('bar');
+        const heightPercent = (value / maxVal) * 100;
+        bar.style.height = `${Math.max(heightPercent, 5)}%`;
+        barContainer.appendChild(bar);
+    });
+}
+
 function generateRandomArray() {
     if (isSorting) return;
     array = [];
-    barContainer.innerHTML = '';
+    const ARRAY_SIZE = 20; // 표 보기 적합하도록 20개로 조정
 
     for (let i = 0; i < ARRAY_SIZE; i++) {
-        const value = Math.floor(Math.random() * 90) + 10;
-        array.push(value);
-
-        const bar = document.createElement('div');
-        bar.classList.add('bar');
-        bar.style.height = `${value}%`;
-        barContainer.appendChild(bar);
+        array.push(Math.floor(Math.random() * 90) + 10);
     }
+    renderBars(array);
+    clearStepTable();
 }
 
-// 알고리즘 설명 업데이트
+function applyCustomArray() {
+    if (isSorting) return;
+
+    const inputVal = customArrayInput.value.trim();
+    if (!inputVal) return alert("숫자를 입력해 주세요.");
+
+    const parsedArray = inputVal
+        .split(/[\s,]+/)
+        .map(Number)
+        .filter(n => !isNaN(n) && n > 0);
+
+    if (parsedArray.length < 2) return alert("2개 이상의 올바른 숫자를 입력해 주세요.");
+    if (parsedArray.length > 30) return alert("표와 시각화를 위해 30개 이하로 입력해 주세요.");
+
+    array = parsedArray;
+    renderBars(array);
+    clearStepTable();
+}
+
 function updateDescription() {
     const selected = algorithmSelect.value;
     const info = algorithmData[selected];
@@ -73,15 +136,17 @@ function updateDescription() {
     descComplexity.textContent = info.complexity;
 }
 
-// UI 상태 토글
 function setControlsDisabled(disabled) {
     isSorting = disabled;
     generateBtn.disabled = disabled;
     startBtn.disabled = disabled;
     algorithmSelect.disabled = disabled;
+    applyArrayBtn.disabled = disabled;
+    customArrayInput.disabled = disabled;
+    clearTableBtn.disabled = disabled;
 }
 
-/* ==================== 정렬 알고리즘 로직 ==================== */
+/* ==================== 정렬 알고리즘 ==================== */
 
 // 1. 버블 정렬
 async function bubbleSort() {
@@ -92,13 +157,14 @@ async function bubbleSort() {
         for (let j = 0; j < n - i - 1; j++) {
             bars[j].classList.add('comparing');
             bars[j + 1].classList.add('comparing');
-
             await delay();
 
             if (array[j] > array[j + 1]) {
                 [array[j], array[j + 1]] = [array[j + 1], array[j]];
-                bars[j].style.height = `${array[j]}%`;
-                bars[j + 1].style.height = `${array[j + 1]}%`;
+                bars[j].style.height = `${(array[j] / Math.max(...array, 100)) * 100}%`;
+                bars[j + 1].style.height = `${(array[j + 1] / Math.max(...array, 100)) * 100}%`;
+
+                addStepToTable(`값 교환 (${array[j+1]} ↔ ${array[j]})`, 'swap');
             }
 
             bars[j].classList.remove('comparing');
@@ -133,13 +199,13 @@ async function selectionSort() {
 
         if (minIdx !== i) {
             [array[i], array[minIdx]] = [array[minIdx], array[i]];
-            bars[i].style.height = `${array[i]}%`;
-            bars[minIdx].style.height = `${array[minIdx]}%`;
+            bars[i].style.height = `${(array[i] / Math.max(...array, 100)) * 100}%`;
+            bars[minIdx].style.height = `${(array[minIdx] / Math.max(...array, 100)) * 100}%`;
+
+            addStepToTable(`최솟값 교환 (${array[i]} 위치 이동)`, 'swap');
         }
 
-        for (let k = i; k < n; k++) {
-            bars[k].classList.remove('comparing', 'selected');
-        }
+        for (let k = i; k < n; k++) bars[k].classList.remove('comparing', 'selected');
         bars[i].classList.add('sorted');
     }
 }
@@ -148,7 +214,6 @@ async function selectionSort() {
 async function insertionSort() {
     const bars = document.getElementsByClassName('bar');
     const n = array.length;
-
     bars[0].classList.add('sorted');
 
     for (let i = 1; i < n; i++) {
@@ -161,40 +226,35 @@ async function insertionSort() {
         while (j >= 0 && array[j] > key) {
             bars[j].classList.add('comparing');
             array[j + 1] = array[j];
-            bars[j + 1].style.height = `${array[j]}%`;
+            bars[j + 1].style.height = `${(array[j] / Math.max(...array, 100)) * 100}%`;
             await delay();
-
             bars[j].classList.remove('comparing');
             j--;
         }
 
         array[j + 1] = key;
-        bars[j + 1].style.height = `${key}%`;
+        bars[j + 1].style.height = `${(key / Math.max(...array, 100)) * 100}%`;
         bars[i].classList.remove('selected');
 
-        for (let k = 0; k <= i; k++) {
-            bars[k].classList.add('sorted');
-        }
+        addStepToTable(`원소 삽입 (${key})`, 'insert');
+
+        for (let k = 0; k <= i; k++) bars[k].classList.add('sorted');
     }
 }
 
-// 4. 병합 정렬 (Merge Sort)
+// 4. 병합 정렬
 async function merge(start, mid, end) {
     const bars = document.getElementsByClassName('bar');
     const temp = [];
-    let i = start;
-    let j = mid + 1;
+    let i = start, j = mid + 1;
 
     while (i <= mid && j <= end) {
         bars[i].classList.add('comparing');
         bars[j].classList.add('comparing');
         await delay();
 
-        if (array[i] <= array[j]) {
-            temp.push(array[i++]);
-        } else {
-            temp.push(array[j++]);
-        }
+        if (array[i] <= array[j]) temp.push(array[i++]);
+        else temp.push(array[j++]);
     }
 
     while (i <= mid) temp.push(array[i++]);
@@ -202,17 +262,17 @@ async function merge(start, mid, end) {
 
     for (let k = start; k <= end; k++) {
         array[k] = temp[k - start];
-        bars[k].style.height = `${array[k]}%`;
+        bars[k].style.height = `${(array[k] / Math.max(...array, 100)) * 100}%`;
         bars[k].classList.remove('comparing');
         bars[k].classList.add('sorted');
-        await delay();
     }
+
+    addStepToTable(`부분 병합 완료 (${start}~${end} 구간)`, 'compare');
 }
 
 async function mergeSortHelper(start, end) {
     if (start >= end) return;
     const mid = Math.floor((start + end) / 2);
-
     await mergeSortHelper(start, mid);
     await mergeSortHelper(mid + 1, end);
     await merge(start, mid, end);
@@ -222,11 +282,11 @@ async function mergeSort() {
     await mergeSortHelper(0, array.length - 1);
 }
 
-// 5. 퀵 정렬 (Quick Sort)
+// 5. 퀵 정렬
 async function partition(low, high) {
     const bars = document.getElementsByClassName('bar');
     const pivot = array[high];
-    bars[high].classList.add('selected'); // 피벗 표시
+    bars[high].classList.add('selected');
 
     let i = low - 1;
 
@@ -237,17 +297,19 @@ async function partition(low, high) {
         if (array[j] < pivot) {
             i++;
             [array[i], array[j]] = [array[j], array[i]];
-            bars[i].style.height = `${array[i]}%`;
-            bars[j].style.height = `${array[j]}%`;
+            bars[i].style.height = `${(array[i] / Math.max(...array, 100)) * 100}%`;
+            bars[j].style.height = `${(array[j] / Math.max(...array, 100)) * 100}%`;
         }
         bars[j].classList.remove('comparing');
     }
 
     [array[i + 1], array[high]] = [array[high], array[i + 1]];
-    bars[i + 1].style.height = `${array[i + 1]}%`;
-    bars[high].style.height = `${array[high]}%`;
+    bars[i + 1].style.height = `${(array[i + 1] / Math.max(...array, 100)) * 100}%`;
+    bars[high].style.height = `${(array[high] / Math.max(...array, 100)) * 100}%`;
     bars[high].classList.remove('selected');
     bars[i + 1].classList.add('sorted');
+
+    addStepToTable(`피벗(${pivot}) 정렬 완료`, 'swap');
 
     return i + 1;
 }
@@ -269,9 +331,11 @@ async function quickSort() {
 
 /* ============================================================ */
 
-// 정렬 시작 핸들러
 async function startSort() {
     setControlsDisabled(true);
+    clearStepTable();
+
+    addStepToTable("정렬 시작 (초기 상태)", "compare");
 
     const selectedAlgorithm = algorithmSelect.value;
     if (selectedAlgorithm === 'bubble') await bubbleSort();
@@ -280,87 +344,17 @@ async function startSort() {
     else if (selectedAlgorithm === 'merge') await mergeSort();
     else if (selectedAlgorithm === 'quick') await quickSort();
 
+    addStepToTable("정렬 완전 완료 🎉", "complete");
     setControlsDisabled(false);
 }
 
-// 이벤트 리스너 등록
+// 이벤트 리스너
 generateBtn.addEventListener('click', generateRandomArray);
 startBtn.addEventListener('click', startSort);
 algorithmSelect.addEventListener('change', updateDescription);
+applyArrayBtn.addEventListener('click', applyCustomArray);
+clearTableBtn.addEventListener('click', clearStepTable);
 
 // 초기화
 generateRandomArray();
 updateDescription();
-
-// 기존 변수 및 DOM 선언부에 추가
-const customArrayInput = document.getElementById('custom-array-input');
-const applyArrayBtn = document.getElementById('apply-array-btn');
-
-// 배열을 기반으로 막대 그래프 그리는 공통 함수
-function renderBars(targetArray) {
-    barContainer.innerHTML = '';
-    const maxVal = Math.max(...targetArray, 100); // 100 또는 배열 내 최댓값을 기준으로 높이 비율(%) 계산
-
-    targetArray.forEach(value => {
-        const bar = document.createElement('div');
-        bar.classList.add('bar');
-        const heightPercent = (value / maxVal) * 100;
-        bar.style.height = `${Math.max(heightPercent, 5)}%`; // 최소 높이 5% 보장
-        barContainer.appendChild(bar);
-    });
-}
-
-// 1. 랜덤 배열 생성
-function generateRandomArray() {
-    if (isSorting) return;
-    array = [];
-    const ARRAY_SIZE = 30;
-
-    for (let i = 0; i < ARRAY_SIZE; i++) {
-        array.push(Math.floor(Math.random() * 90) + 10);
-    }
-    renderBars(array);
-}
-
-// 2. 사용자 입력 배열 적용
-function applyCustomArray() {
-    if (isSorting) return;
-
-    const inputVal = customArrayInput.value.trim();
-    if (!inputVal) {
-        alert("숫자들을 쉼표(,)나 공백으로 구분해서 입력해 주세요.");
-        return;
-    }
-
-    // 쉼표나 공백을 기준으로 분리 후 숫자로 변환
-    const parsedArray = inputVal
-        .split(/[\s,]+/)
-        .map(item => Number(item))
-        .filter(item => !isNaN(item) && item > 0);
-
-    if (parsedArray.length < 2) {
-        alert("2개 이상의 올바른 양의 숫자를 입력해 주세요.");
-        return;
-    }
-
-    if (parsedArray.length > 50) {
-        alert("화면 시각화를 위해 숫자 개수는 50개 이하로 입력해 주세요.");
-        return;
-    }
-
-    array = parsedArray;
-    renderBars(array);
-}
-
-// UI 활성화/비활성화 시 입력창도 같이 제어
-function setControlsDisabled(disabled) {
-    isSorting = disabled;
-    generateBtn.disabled = disabled;
-    startBtn.disabled = disabled;
-    algorithmSelect.disabled = disabled;
-    applyArrayBtn.disabled = disabled;
-    customArrayInput.disabled = disabled;
-}
-
-// 이벤트 리스너 등록에 추가
-applyArrayBtn.addEventListener('click', applyCustomArray);
