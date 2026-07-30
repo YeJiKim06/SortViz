@@ -291,3 +291,76 @@ algorithmSelect.addEventListener('change', updateDescription);
 // 초기화
 generateRandomArray();
 updateDescription();
+
+// 기존 변수 및 DOM 선언부에 추가
+const customArrayInput = document.getElementById('custom-array-input');
+const applyArrayBtn = document.getElementById('apply-array-btn');
+
+// 배열을 기반으로 막대 그래프 그리는 공통 함수
+function renderBars(targetArray) {
+    barContainer.innerHTML = '';
+    const maxVal = Math.max(...targetArray, 100); // 100 또는 배열 내 최댓값을 기준으로 높이 비율(%) 계산
+
+    targetArray.forEach(value => {
+        const bar = document.createElement('div');
+        bar.classList.add('bar');
+        const heightPercent = (value / maxVal) * 100;
+        bar.style.height = `${Math.max(heightPercent, 5)}%`; // 최소 높이 5% 보장
+        barContainer.appendChild(bar);
+    });
+}
+
+// 1. 랜덤 배열 생성
+function generateRandomArray() {
+    if (isSorting) return;
+    array = [];
+    const ARRAY_SIZE = 30;
+
+    for (let i = 0; i < ARRAY_SIZE; i++) {
+        array.push(Math.floor(Math.random() * 90) + 10);
+    }
+    renderBars(array);
+}
+
+// 2. 사용자 입력 배열 적용
+function applyCustomArray() {
+    if (isSorting) return;
+
+    const inputVal = customArrayInput.value.trim();
+    if (!inputVal) {
+        alert("숫자들을 쉼표(,)나 공백으로 구분해서 입력해 주세요.");
+        return;
+    }
+
+    // 쉼표나 공백을 기준으로 분리 후 숫자로 변환
+    const parsedArray = inputVal
+        .split(/[\s,]+/)
+        .map(item => Number(item))
+        .filter(item => !isNaN(item) && item > 0);
+
+    if (parsedArray.length < 2) {
+        alert("2개 이상의 올바른 양의 숫자를 입력해 주세요.");
+        return;
+    }
+
+    if (parsedArray.length > 50) {
+        alert("화면 시각화를 위해 숫자 개수는 50개 이하로 입력해 주세요.");
+        return;
+    }
+
+    array = parsedArray;
+    renderBars(array);
+}
+
+// UI 활성화/비활성화 시 입력창도 같이 제어
+function setControlsDisabled(disabled) {
+    isSorting = disabled;
+    generateBtn.disabled = disabled;
+    startBtn.disabled = disabled;
+    algorithmSelect.disabled = disabled;
+    applyArrayBtn.disabled = disabled;
+    customArrayInput.disabled = disabled;
+}
+
+// 이벤트 리스너 등록에 추가
+applyArrayBtn.addEventListener('click', applyCustomArray);
