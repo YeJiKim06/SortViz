@@ -419,3 +419,42 @@ td.empty-msg {
         height: 240px;
     }
 }
+
+/* 막대 기본 스타일 수정 */
+.bar {
+    flex: 1;
+    background: var(--bar-default);
+    border-radius: 6px 6px 0 0;
+    transition: height 0.1s ease, background 0.15s ease;
+    
+    /* 숫자 레이블 표시를 위한 Flex 레이아웃 추가 */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 4px;
+    position: relative;
+}
+
+/* 막대 안의 숫자 레이블 스타일 추가 */
+.bar-value {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    user-select: none;
+    pointer-events: none;
+}
+
+/* 라이트 모드 시 가독성 보장 */
+[data-theme="light"] .bar-value {
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* 모바일 등 넓이가 좁을 때 숫자가 겹치지 않도록 조절 */
+@media (max-width: 640px) {
+    .bar-value {
+        font-size: 0.65rem;
+        padding-top: 2px;
+    }
+}
