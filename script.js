@@ -12,7 +12,7 @@ const descTitle = document.getElementById('desc-title');
 const descContent = document.getElementById('desc-content');
 const descComplexity = document.getElementById('desc-complexity');
 
-// 알고리즘별 설명 데이터
+// 알고리즘별 설명 데이터 (병합, 퀵 정렬 추가)
 const algorithmData = {
     bubble: {
         title: "버블 정렬 (Bubble Sort)",
@@ -28,12 +28,22 @@ const algorithmData = {
         title: "삽입 정렬 (Insertion Sort)",
         description: "두 번째 원소부터 시작하여 차례대로 앞쪽의 이미 정렬된 부분과 비교하여 자신의 위치를 찾아 삽입하는 방식입니다.",
         complexity: "O(n²)"
+    },
+    merge: {
+        title: "병합 정렬 (Merge Sort)",
+        description: "배열을 절반으로 나누어 각각 정렬한 후, 다시 병합하면서 전체를 정렬하는 분할 정복 알고리즘입니다.",
+        complexity: "O(n log n)"
+    },
+    quick: {
+        title: "퀵 정렬 (Quick Sort)",
+        description: "피벗(Pivot)을 선정하여 피벗보다 작은 값과 큰 값으로 분할하며 정렬을 수행하는 효율적인 분할 정복 알고리즘입니다.",
+        complexity: "O(n log n)"
     }
 };
 
 // 딜레이 함수
 const delay = () => {
-    const speed = 510 - speedRange.value; // 슬라이더 값을 지연 시간으로 변환
+    const speed = 510 - speedRange.value;
     return new Promise(resolve => setTimeout(resolve, speed));
 };
 
@@ -71,7 +81,9 @@ function setControlsDisabled(disabled) {
     algorithmSelect.disabled = disabled;
 }
 
-// 버블 정렬
+/* ==================== 정렬 알고리즘 로직 ==================== */
+
+// 1. 버블 정렬
 async function bubbleSort() {
     const bars = document.getElementsByClassName('bar');
     const n = array.length;
@@ -84,7 +96,6 @@ async function bubbleSort() {
             await delay();
 
             if (array[j] > array[j + 1]) {
-                // 데이터 Swap
                 [array[j], array[j + 1]] = [array[j + 1], array[j]];
                 bars[j].style.height = `${array[j]}%`;
                 bars[j + 1].style.height = `${array[j + 1]}%`;
@@ -98,7 +109,7 @@ async function bubbleSort() {
     bars[0].classList.add('sorted');
 }
 
-// 선택 정렬
+// 2. 선택 정렬
 async function selectionSort() {
     const bars = document.getElementsByClassName('bar');
     const n = array.length;
@@ -133,7 +144,7 @@ async function selectionSort() {
     }
 }
 
-// 삽입 정렬
+// 3. 삽입 정렬
 async function insertionSort() {
     const bars = document.getElementsByClassName('bar');
     const n = array.length;
@@ -167,18 +178,107 @@ async function insertionSort() {
     }
 }
 
+// 4. 병합 정렬 (Merge Sort)
+async function merge(start, mid, end) {
+    const bars = document.getElementsByClassName('bar');
+    const temp = [];
+    let i = start;
+    let j = mid + 1;
+
+    while (i <= mid && j <= end) {
+        bars[i].classList.add('comparing');
+        bars[j].classList.add('comparing');
+        await delay();
+
+        if (array[i] <= array[j]) {
+            temp.push(array[i++]);
+        } else {
+            temp.push(array[j++]);
+        }
+    }
+
+    while (i <= mid) temp.push(array[i++]);
+    while (j <= end) temp.push(array[j++]);
+
+    for (let k = start; k <= end; k++) {
+        array[k] = temp[k - start];
+        bars[k].style.height = `${array[k]}%`;
+        bars[k].classList.remove('comparing');
+        bars[k].classList.add('sorted');
+        await delay();
+    }
+}
+
+async function mergeSortHelper(start, end) {
+    if (start >= end) return;
+    const mid = Math.floor((start + end) / 2);
+
+    await mergeSortHelper(start, mid);
+    await mergeSortHelper(mid + 1, end);
+    await merge(start, mid, end);
+}
+
+async function mergeSort() {
+    await mergeSortHelper(0, array.length - 1);
+}
+
+// 5. 퀵 정렬 (Quick Sort)
+async function partition(low, high) {
+    const bars = document.getElementsByClassName('bar');
+    const pivot = array[high];
+    bars[high].classList.add('selected'); // 피벗 표시
+
+    let i = low - 1;
+
+    for (let j = low; j < high; j++) {
+        bars[j].classList.add('comparing');
+        await delay();
+
+        if (array[j] < pivot) {
+            i++;
+            [array[i], array[j]] = [array[j], array[i]];
+            bars[i].style.height = `${array[i]}%`;
+            bars[j].style.height = `${array[j]}%`;
+        }
+        bars[j].classList.remove('comparing');
+    }
+
+    [array[i + 1], array[high]] = [array[high], array[i + 1]];
+    bars[i + 1].style.height = `${array[i + 1]}%`;
+    bars[high].style.height = `${array[high]}%`;
+    bars[high].classList.remove('selected');
+    bars[i + 1].classList.add('sorted');
+
+    return i + 1;
+}
+
+async function quickSortHelper(low, high) {
+    if (low < high) {
+        const pivotIdx = await partition(low, high);
+        await quickSortHelper(low, pivotIdx - 1);
+        await quickSortHelper(pivotIdx + 1, high);
+    } else if (low >= 0 && high >= 0 && low < array.length) {
+        const bars = document.getElementsByClassName('bar');
+        bars[low].classList.add('sorted');
+    }
+}
+
+async function quickSort() {
+    await quickSortHelper(0, array.length - 1);
+}
+
+/* ============================================================ */
+
 // 정렬 시작 핸들러
 async function startSort() {
     setControlsDisabled(true);
 
     const selectedAlgorithm = algorithmSelect.value;
-    if (selectedAlgorithm === 'bubble') {
-        await bubbleSort();
-    } else if (selectedAlgorithm === 'selection') {
-        await selectionSort();
-    } else if (selectedAlgorithm === 'insertion') {
-        await insertionSort();
-    }
+    if (selectedAlgorithm === 'bubble') await bubbleSort();
+    else if (selectedAlgorithm === 'selection') await selectionSort();
+    else if (selectedAlgorithm === 'insertion') await insertionSort();
+    else if (selectedAlgorithm === 'merge') await mergeSort();
+    else if (selectedAlgorithm === 'quick') await quickSort();
 
     setControlsDisabled(false);
 }
